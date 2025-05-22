@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="i_p_10">10dp</dimen>
+    <dimen name="i_p_20">20dp</dimen>
+    <dimen name="fs_text_12">12sp</dimen>
+    <dimen name="fs_text_16">16sp</dimen>
+    <dimen name="fs_text_22">22sp</dimen>
+    <dimen name="m_height_61">61dp</dimen>
+    <dimen name="icp_10">10dp</dimen>
+    <dimen name="icp_16">16dp</dimen>
+    <dimen name="icp_24">24dp</dimen>
+
+</resources>
