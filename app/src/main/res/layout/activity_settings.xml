@@ -7,11 +7,14 @@
     android:background="?android:attr/colorBackground"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/back_to_main"
-        style="@style/BackButton"
-        android:text="@string/c_tools"
-        app:drawableStartCompat="@drawable/ic_arrow_back" />
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?android:attr/colorBackground"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/c_tools"
+        app:titleTextAppearance="@style/ToolbarTitle" />
 
     <androidx.appcompat.widget.SwitchCompat
         style="@style/SettingsItem"

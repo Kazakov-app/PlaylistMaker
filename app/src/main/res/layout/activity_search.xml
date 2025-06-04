@@ -9,13 +9,14 @@
     android:padding="10dp"
     tools:context=".SearchActivity">
 
-    <TextView
-        android:id="@+id/back_to_main_from_search"
-        style="@style/ToolbarText"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:gravity="center_vertical"
-        android:text="@string/search" />
+        android:background="?android:attr/colorBackground"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/search"
+        app:titleTextAppearance="@style/ToolbarTitle" />
 
     <FrameLayout
         style="@style/SearchBg"

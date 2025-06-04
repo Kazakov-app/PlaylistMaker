@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.google.android.material.appbar.MaterialToolbar
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -22,9 +23,8 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
-        val t = findViewById<TextView>(R.id.back_to_main)
-
-        t.setOnClickListener {
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
             finish()
         }
 

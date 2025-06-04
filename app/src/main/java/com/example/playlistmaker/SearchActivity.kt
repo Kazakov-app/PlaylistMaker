@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import com.google.android.material.appbar.MaterialToolbar
 
 class SearchActivity : AppCompatActivity() {
 
@@ -39,10 +40,9 @@ class SearchActivity : AppCompatActivity() {
             iMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
         }
 
-        val t = findViewById<TextView>(R.id.back_to_main_from_search)
-
-        t.setOnClickListener {
-            this.finish()
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            finish()
         }
 
         val watcher = object : TextWatcher {
