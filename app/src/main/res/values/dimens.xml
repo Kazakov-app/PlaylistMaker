@@ -11,4 +11,5 @@
     <dimen name="icp_12">12dp</dimen>
     <dimen name="icp_16">16dp</dimen>
     <dimen name="icp_24">24dp</dimen>
+    <dimen name="e_4">4dp</dimen>
 </resources>
