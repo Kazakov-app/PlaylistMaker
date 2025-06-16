@@ -1,5 +1,7 @@
 package com.example.playlistmaker.search
 
+import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -8,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
-import com.example.playlistmaker.search.utils.ViewUtils
 
 class TrackViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
     LayoutInflater.from(parent.context).inflate(R.layout.track_item, parent, false)
@@ -27,7 +28,15 @@ class TrackViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
             .load(track.artworkUrl100)
             .centerCrop()
             .placeholder(R.drawable.ic_placeholder)
-            .transform(RoundedCorners(ViewUtils.dpToPx(2f, itemView.context)))
+            .transform(RoundedCorners(itemView.context.dpToPx(2f)))
             .into(artworkImageView)
     }
+}
+
+fun Context.dpToPx(dp: Float): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp,
+        this.resources.displayMetrics
+    ).toInt()
 }
