@@ -12,4 +12,7 @@
     <dimen name="icp_16">16dp</dimen>
     <dimen name="icp_24">24dp</dimen>
     <dimen name="e_4">4dp</dimen>
+    <dimen name="margin_start">12dp</dimen>
+    <dimen name="margin_end">8dp</dimen>
+    <dimen name="image_size">46dp</dimen>
 </resources>
