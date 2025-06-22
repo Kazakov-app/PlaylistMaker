@@ -56,10 +56,60 @@
 
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/h_p_16" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/h_p_16" />
+
+        <TextView
+            android:id="@+id/placeholder_nothing"
+            style="@style/PlaceholderFoundNothing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:drawableTopCompat="@drawable/ic_placeholder_nothing" />
+
+        <LinearLayout
+            android:id="@+id/placeholder_no_connection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_placeholder_noconnection" />
+
+            <TextView
+                style="@style/NoConnectionPlaceholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_16"
+                android:text="@string/no_connection" />
+
+            <TextView
+                style="@style/NoConnectionPlaceholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_24"
+                android:text="@string/download_failed" />
+
+            <Button
+                android:id="@+id/update"
+                style="@style/UpdateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cornerRadius="@dimen/btn_corners_54" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

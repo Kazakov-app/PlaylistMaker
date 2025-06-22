@@ -6,6 +6,7 @@
     <dimen name="i_p_20">20dp</dimen>
     <dimen name="fs_text_12">12sp</dimen>
     <dimen name="fs_text_16">16sp</dimen>
+    <dimen name="fs_text_20">20sp</dimen>
     <dimen name="fs_text_24">24sp</dimen>
     <dimen name="m_height_60">60dp</dimen>
     <dimen name="icp_12">12dp</dimen>
@@ -14,5 +15,8 @@
     <dimen name="e_4">4dp</dimen>
     <dimen name="margin_start">12dp</dimen>
     <dimen name="margin_end">8dp</dimen>
+    <dimen name="margin_16">16dp</dimen>
+    <dimen name="margin_24">24dp</dimen>
     <dimen name="image_size">46dp</dimen>
+    <dimen name="btn_corners_54">54dp</dimen>
 </resources>
