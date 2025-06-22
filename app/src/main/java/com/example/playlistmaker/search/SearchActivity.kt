@@ -1,4 +1,4 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.search
 
 import android.os.Bundle
 import android.text.Editable
@@ -7,13 +7,15 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 
 class SearchActivity : AppCompatActivity() {
@@ -59,7 +61,14 @@ class SearchActivity : AppCompatActivity() {
 
         etSearch.addTextChangedListener(watcher)
 
+
+        val trackAdapter = TrackAdapter(trackList)
+
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = trackAdapter
     }
+
 
     private fun clearVisibility(s: CharSequence?): Int {
         return if (s.isNullOrEmpty()) {
