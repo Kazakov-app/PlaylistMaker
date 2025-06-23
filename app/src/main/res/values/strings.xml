@@ -17,5 +17,9 @@
     <string name="myEmail">kazakov.app@ya.ru</string>
     <string name="search">Поиск</string>
     <string name="c_search_clear">Очистить поисковый запрос</string>
+    <string name="update">Обновить</string>
+    <string name="nothing_was_found">Ничего не нашлось</string>
+    <string name="no_connection">Проблемы со связью</string>
+    <string name="download_failed">Загрузка не удалась. Проверьте подключение к интернету</string>
 </resources>
 
