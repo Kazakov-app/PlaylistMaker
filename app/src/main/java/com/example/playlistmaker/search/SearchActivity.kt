@@ -28,7 +28,6 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 class SearchActivity : AppCompatActivity() {
 
     private val iTunesBaseUrl = "https://itunes.apple.com"
@@ -50,6 +49,13 @@ class SearchActivity : AppCompatActivity() {
     private var sText: String = ""
     private lateinit var etSearch: EditText
 
+    enum class SearchState {
+        LOADING,       // Загрузка
+        SUCCESS,       // Успешно
+        EMPTY_RESULT,  // Пусто
+        ERROR          // Ошибка
+    }
+
     @SuppressLint("MissingInflatedId", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -60,7 +66,8 @@ class SearchActivity : AppCompatActivity() {
             view.updatePadding(top = statusBarInsets.top)
             insets
         }
-        etSearch = findViewById<EditText>(R.id.etSearch)
+
+        etSearch = findViewById(R.id.etSearch)
         val iwClear = findViewById<ImageView>(R.id.iwClear)
 
         nothingPlaceHolder = findViewById(R.id.placeholder_nothing)
@@ -78,7 +85,6 @@ class SearchActivity : AppCompatActivity() {
                 searchTracks(query)
             }
         }
-
 
         iwClear.setOnClickListener {
             etSearch.text.clear()
@@ -122,36 +128,46 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun clearVisibility(s: CharSequence?): Int {
-        return if (s.isNullOrEmpty()) {
-            View.GONE
-        } else {
-            View.VISIBLE
+    private fun updateUI(state: SearchState) {
+        when (state) {
+            SearchState.LOADING -> {
+                recyclerView.visibility = View.GONE
+                nothingPlaceHolder.visibility = View.GONE
+                noConnectionPlaceholder.visibility = View.GONE
+                // Добавить ProgressBar в будущем
+            }
+            SearchState.SUCCESS -> {
+                recyclerView.visibility = View.VISIBLE
+                nothingPlaceHolder.visibility = View.GONE
+                noConnectionPlaceholder.visibility = View.GONE
+            }
+            SearchState.EMPTY_RESULT -> {
+                recyclerView.visibility = View.GONE
+                nothingPlaceHolder.visibility = View.VISIBLE
+                noConnectionPlaceholder.visibility = View.GONE
+            }
+            SearchState.ERROR -> {
+                recyclerView.visibility = View.GONE
+                nothingPlaceHolder.visibility = View.GONE
+                noConnectionPlaceholder.visibility = View.VISIBLE
+            }
         }
     }
 
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-
         outState.putString(ID_SEARCH_QUERY, sText)
-
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-
         sText = savedInstanceState.getString(ID_SEARCH_QUERY).toString()
         etSearch.setText(sText)
     }
 
-    companion object {
-        private const val ID_SEARCH_QUERY = "ID_SEARCH_QUERY"
-    }
-
-
     fun searchTracks(term: String) {
+        updateUI(SearchState.LOADING)
+
         iTunesService.searchTracks(term)
             .enqueue(object : Callback<TracksResponse> {
                 @SuppressLint("NotifyDataSetChanged")
@@ -159,20 +175,22 @@ class SearchActivity : AppCompatActivity() {
                     call: Call<TracksResponse>,
                     response: Response<TracksResponse>
                 ) {
-                    val tracksResponse = response.body()
-                    if (tracksResponse != null && tracksResponse.results.isNotEmpty()) {
-                        trackList.clear()
-                        trackList.addAll(tracksResponse.results)
-                        trackAdapter.notifyDataSetChanged()
-                        recyclerView.visibility = View.VISIBLE
-                        nothingPlaceHolder.visibility = View.GONE
-                        noConnectionPlaceholder.visibility = View.GONE
+                    if (response.isSuccessful) {
+                        val tracksResponse = response.body()
+                        if (tracksResponse?.results?.isNotEmpty() == true) {
+                            trackList.clear()
+                            trackList.addAll(tracksResponse.results)
+                            trackAdapter.notifyDataSetChanged()
+                            updateUI(SearchState.SUCCESS)
+                        } else {
+                            trackList.clear()
+                            trackAdapter.notifyDataSetChanged()
+                            updateUI(SearchState.EMPTY_RESULT)
+                        }
                     } else {
                         trackList.clear()
                         trackAdapter.notifyDataSetChanged()
-                        recyclerView.visibility = View.GONE
-                        nothingPlaceHolder.visibility = View.VISIBLE
-                        noConnectionPlaceholder.visibility = View.GONE
+                        updateUI(SearchState.ERROR)
                     }
                 }
 
@@ -180,10 +198,12 @@ class SearchActivity : AppCompatActivity() {
                 override fun onFailure(call: Call<TracksResponse>, t: Throwable) {
                     trackList.clear()
                     trackAdapter.notifyDataSetChanged()
-                    recyclerView.visibility = View.GONE
-                    nothingPlaceHolder.visibility = View.GONE
-                    noConnectionPlaceholder.visibility = View.VISIBLE
+                    updateUI(SearchState.ERROR)
                 }
             })
+    }
+
+    companion object {
+        private const val ID_SEARCH_QUERY = "ID_SEARCH_QUERY"
     }
 }
