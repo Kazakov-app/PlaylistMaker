@@ -17,6 +17,7 @@
         app:titleTextAppearance="@style/ToolbarTitle" />
 
     <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/theme_switcher"
         style="@style/SettingsItem"
         android:text="@string/c_theme_dark"
         android:theme="@style/DarkThemeSwitchTheme" />
