@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import com.example.playlistmaker.App
 import com.example.playlistmaker.R
 import com.google.android.material.appbar.MaterialToolbar
 
@@ -24,9 +26,19 @@ class SettingsActivity : AppCompatActivity() {
             insets
         }
 
+        val themeSwitcher = findViewById<SwitchCompat>(R.id.theme_switcher)
+
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener {
             finish()
+        }
+
+        val sharedPrefs = getSharedPreferences("app_preferences", MODE_PRIVATE)
+        val isDarkTheme = sharedPrefs.getBoolean("dark_theme", true)
+        themeSwitcher.isChecked = isDarkTheme
+
+        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
+            (applicationContext as App).switchTheme(checked)
         }
 
         findViewById<TextView>(R.id.share_app).setOnClickListener {

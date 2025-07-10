@@ -1,6 +1,7 @@
 package com.example.playlistmaker.search
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -38,11 +40,21 @@ class SearchActivity : AppCompatActivity() {
         .build()
 
     private var trackList = ArrayList<Track>()
-    private lateinit var nothingPlaceHolder: TextView
+    private lateinit var nothingPlaceHolder: LinearLayout
+    private var trackListSearchHistory = ArrayList<Track>()
     private lateinit var noConnectionPlaceholder: LinearLayout
     private lateinit var trackAdapter: TrackAdapter
+    private lateinit var trackHistoryAdapter: TrackAdapter
     private lateinit var buttonUpdate: Button
     private lateinit var recyclerView: RecyclerView
+
+    private lateinit var searchHistoryLayout: ScrollView
+    private lateinit var searchHistoryText: TextView
+    private lateinit var searchHistoryRecyclerView: RecyclerView
+    private lateinit var searchHistoryClearButton: Button
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var searchHistory: SearchHistory
+    private lateinit var listenerSharedPrefs: SharedPreferences.OnSharedPreferenceChangeListener
 
     private val iTunesService = retrofit.create(ITunesApiService::class.java)
 
@@ -73,10 +85,71 @@ class SearchActivity : AppCompatActivity() {
         nothingPlaceHolder = findViewById(R.id.placeholder_nothing)
         noConnectionPlaceholder = findViewById(R.id.placeholder_no_connection)
         recyclerView = findViewById(R.id.recycler_view)
+        searchHistoryLayout = findViewById(R.id.search_history_layout)
+        searchHistoryText = findViewById(R.id.search_history_text)
+        searchHistoryRecyclerView = findViewById(R.id.search_history_recycler_view)
+        searchHistoryClearButton = findViewById(R.id.clear_history_button)
+        sharedPrefs = getSharedPreferences(SEARCH_HISTORY_SHARED_PREFS, MODE_PRIVATE)
+        searchHistory = SearchHistory(sharedPrefs)
 
         trackAdapter = TrackAdapter(trackList)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = trackAdapter
+        trackHistoryAdapter = TrackAdapter(trackListSearchHistory)
+        searchHistoryRecyclerView.adapter = trackHistoryAdapter
+        searchHistoryRecyclerView.layoutManager = LinearLayoutManager(this)
+
+
+        trackAdapter.onClickTrack = { track: Track ->
+            searchHistory.addTrack(track)
+            updateSearchHistory()
+        }
+
+        trackHistoryAdapter.onClickTrack = { track: Track ->
+            searchHistory.addTrack(track)
+            updateSearchHistory()
+        }
+
+
+        listenerSharedPrefs =
+            SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+                if (key == SEARCH_HISTORY_KEY) {
+                    trackListSearchHistory.clear()
+                    trackListSearchHistory.addAll(searchHistory.getHistory())
+                    trackHistoryAdapter.notifyDataSetChanged()
+                }
+            }
+
+        sharedPrefs.registerOnSharedPreferenceChangeListener(listenerSharedPrefs)
+
+
+        etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val query = etSearch.text.toString()
+                if (query.isNotEmpty()) {
+                    searchTracks(query)
+                }
+            }
+            false
+        }
+
+        etSearch.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus && etSearch.text.isNullOrEmpty()
+                && searchHistory.getHistory().isNotEmpty()
+            ) {
+                searchHistoryLayout.visibility = View.VISIBLE
+                trackListSearchHistory.addAll(searchHistory.getHistory())
+                trackHistoryAdapter.notifyDataSetChanged()
+            } else {
+                searchHistoryLayout.visibility = View.GONE
+            }
+        }
+
+        searchHistoryClearButton.setOnClickListener {
+            searchHistory.clearHistory()
+            updateSearchHistory()
+            searchHistoryLayout.visibility = View.GONE
+        }
 
         buttonUpdate = findViewById(R.id.update)
         buttonUpdate.setOnClickListener {
@@ -108,6 +181,16 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 iwClear.isVisible = !s.isNullOrEmpty()
+                if (etSearch.hasFocus() && s?.isEmpty() == true
+                    && searchHistory.getHistory().isNotEmpty()
+                ) {
+                    searchHistoryLayout.visibility = View.VISIBLE
+                    updateSearchHistory()
+                } else {
+                    searchHistoryLayout.visibility = View.GONE
+                    trackList.clear()
+                    trackAdapter.notifyDataSetChanged()
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -128,6 +211,13 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateSearchHistory() {
+        trackListSearchHistory.clear()
+        trackListSearchHistory.addAll(searchHistory.getHistory())
+        trackHistoryAdapter.notifyDataSetChanged()
+    }
+
     private fun updateUI(state: SearchState) {
         when (state) {
             SearchState.LOADING -> {
@@ -136,16 +226,19 @@ class SearchActivity : AppCompatActivity() {
                 noConnectionPlaceholder.visibility = View.GONE
                 // Добавить ProgressBar в будущем
             }
+
             SearchState.SUCCESS -> {
                 recyclerView.visibility = View.VISIBLE
                 nothingPlaceHolder.visibility = View.GONE
                 noConnectionPlaceholder.visibility = View.GONE
             }
+
             SearchState.EMPTY_RESULT -> {
                 recyclerView.visibility = View.GONE
                 nothingPlaceHolder.visibility = View.VISIBLE
                 noConnectionPlaceholder.visibility = View.GONE
             }
+
             SearchState.ERROR -> {
                 recyclerView.visibility = View.GONE
                 nothingPlaceHolder.visibility = View.GONE
@@ -156,12 +249,12 @@ class SearchActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(ID_SEARCH_QUERY, sText)
+        outState.putString(SEARCH_TEXT_KEY, sText)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        sText = savedInstanceState.getString(ID_SEARCH_QUERY).toString()
+        sText = savedInstanceState.getString(SEARCH_TEXT_KEY).toString()
         etSearch.setText(sText)
     }
 
@@ -204,6 +297,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val ID_SEARCH_QUERY = "ID_SEARCH_QUERY"
+        private const val SEARCH_TEXT_KEY = "TEXT_KEY"
+        private const val SEARCH_HISTORY_SHARED_PREFS = "HISTORY_SP"
+        private const val SEARCH_HISTORY_KEY = "HISTORY_KEY"
     }
 }
