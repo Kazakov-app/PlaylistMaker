@@ -28,6 +28,9 @@
             android:exported="false"
             android:parentActivityName=".main.MainActivity" />
         <activity
+            android:name=".player.AudioPlayerActivity"
+            android:exported="false" />
+        <activity
             android:name=".main.MainActivity"
             android:exported="true">
             <intent-filter>
