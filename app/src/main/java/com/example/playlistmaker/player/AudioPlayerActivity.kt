@@ -45,6 +45,7 @@ class AudioPlayerActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private var playerState = STATE_DEFAULT
     private lateinit var handler: Handler
+    private val dateFormat by lazy { SimpleDateFormat("mm:ss", Locale.getDefault()) }
     private val updateProgressRunnable = object : Runnable {
         override fun run() {
             if (playerState == STATE_PLAYING) {
@@ -165,7 +166,7 @@ class AudioPlayerActivity : AppCompatActivity() {
                 playTrackButton.setImageResource(R.drawable.ic_play)
                 playerState = STATE_PREPARED
                 mediaPlayer.seekTo(0)
-                timePlayTrack.text = "00:00"
+                timePlayTrack.text = dateFormat.format(0)
                 handler.removeCallbacks(updateProgressRunnable)
             }
         } catch (e: Exception) {

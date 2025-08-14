@@ -100,6 +100,12 @@ class SearchActivity : AppCompatActivity() {
         return current
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+        sharedPrefs.unregisterOnSharedPreferenceChangeListener(listenerSharedPrefs)
+    }
+
     @SuppressLint("MissingInflatedId", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
