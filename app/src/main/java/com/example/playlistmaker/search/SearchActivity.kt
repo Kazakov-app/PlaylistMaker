@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -13,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -71,6 +74,38 @@ class SearchActivity : AppCompatActivity() {
         ERROR          // Ошибка
     }
 
+    private lateinit var progressBar: ProgressBar
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val searchRunnable = Runnable {
+        val query = etSearch.text.toString()
+        if (query.isNotEmpty()) {
+            searchTracks(query)
+        }
+    }
+
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private var isClickAllowed = true
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacks(searchRunnable)
+        sharedPrefs.unregisterOnSharedPreferenceChangeListener(listenerSharedPrefs)
+    }
+
     @SuppressLint("MissingInflatedId", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -85,6 +120,7 @@ class SearchActivity : AppCompatActivity() {
         etSearch = findViewById(R.id.etSearch)
         val iwClear = findViewById<ImageView>(R.id.iwClear)
 
+        progressBar = findViewById(R.id.progress_bar)
         nothingPlaceHolder = findViewById(R.id.placeholder_nothing)
         noConnectionPlaceholder = findViewById(R.id.placeholder_no_connection)
         recyclerView = findViewById(R.id.recycler_view)
@@ -104,17 +140,20 @@ class SearchActivity : AppCompatActivity() {
 
 
         trackAdapter.onClickTrack = { track: Track ->
-            searchHistory.addTrack(track)
-            updateSearchHistory()
-            goToInfo(track)
+            if (clickDebounce()) {
+                searchHistory.addTrack(track)
+                updateSearchHistory()
+                goToInfo(track)
+            }
         }
 
         trackHistoryAdapter.onClickTrack = { track: Track ->
-            searchHistory.addTrack(track)
-            updateSearchHistory()
-            goToInfo(track)
+            if (clickDebounce()) {
+                searchHistory.addTrack(track)
+                updateSearchHistory()
+                goToInfo(track)
+            }
         }
-
 
         listenerSharedPrefs =
             SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
@@ -126,17 +165,6 @@ class SearchActivity : AppCompatActivity() {
             }
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(listenerSharedPrefs)
-
-
-        etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val query = etSearch.text.toString()
-                if (query.isNotEmpty()) {
-                    searchTracks(query)
-                }
-            }
-            false
-        }
 
         etSearch.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus && etSearch.text.isNullOrEmpty()
@@ -186,7 +214,7 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 iwClear.isVisible = !s.isNullOrEmpty()
-                if (etSearch.hasFocus() && s?.isEmpty() == true
+                if (etSearch.hasFocus() && s.isNullOrEmpty()
                     && searchHistory.getHistory().isNotEmpty()
                 ) {
                     searchHistoryLayout.isVisible = true
@@ -195,6 +223,9 @@ class SearchActivity : AppCompatActivity() {
                     searchHistoryLayout.isVisible = false
                     trackList.clear()
                     trackAdapter.notifyDataSetChanged()
+                }
+                if (!s.isNullOrEmpty()) {
+                    searchDebounce()
                 }
             }
 
@@ -232,25 +263,28 @@ class SearchActivity : AppCompatActivity() {
     private fun updateUI(state: SearchState) {
         when (state) {
             SearchState.LOADING -> {
+                progressBar.visibility = View.VISIBLE
                 recyclerView.isVisible = false
                 nothingPlaceHolder.isVisible = false
                 noConnectionPlaceholder.isVisible = false
-                // Добавить ProgressBar в будущем
             }
 
             SearchState.SUCCESS -> {
+                progressBar.visibility = View.GONE
                 recyclerView.isVisible = true
                 nothingPlaceHolder.isVisible = false
                 noConnectionPlaceholder.isVisible = false
             }
 
             SearchState.EMPTY_RESULT -> {
+                progressBar.visibility = View.GONE
                 recyclerView.isVisible = false
                 nothingPlaceHolder.isVisible = true
                 noConnectionPlaceholder.isVisible = false
             }
 
             SearchState.ERROR -> {
+                progressBar.visibility = View.GONE
                 recyclerView.isVisible = false
                 nothingPlaceHolder.isVisible = false
                 noConnectionPlaceholder.isVisible = true
@@ -281,7 +315,7 @@ class SearchActivity : AppCompatActivity() {
                 ) {
                     if (response.isSuccessful) {
                         val tracksResponse = response.body()
-                        if (tracksResponse?.results?.isNotEmpty() == true) {
+                        if (tracksResponse != null && tracksResponse.results.isNotEmpty()) {
                             trackList.clear()
                             trackList.addAll(tracksResponse.results)
                             trackAdapter.notifyDataSetChanged()
@@ -312,5 +346,7 @@ class SearchActivity : AppCompatActivity() {
         private const val SEARCH_HISTORY_SHARED_PREFS = "HISTORY_SP"
         private const val SEARCH_HISTORY_KEY = "HISTORY_KEY"
         private const val TRACK = "TRACK_DATA"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }
