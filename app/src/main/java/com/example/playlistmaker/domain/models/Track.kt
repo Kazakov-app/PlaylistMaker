@@ -1,4 +1,4 @@
-package com.example.playlistmaker.search
+package com.example.playlistmaker.domain.models
 
 data class Track(
     val trackName: String?,
@@ -8,8 +8,7 @@ data class Track(
     val trackId: Int,
     val collectionName: String,
     val releaseDate: String?,
-    val genreName: String,
+    val genreName: String?,
     val country: String,
     val previewUrl: String
 )
-
