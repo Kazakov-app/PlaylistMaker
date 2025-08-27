@@ -1,4 +1,4 @@
-package com.example.playlistmaker.settings
+package com.example.playlistmaker.ui.settings
 
 import android.content.Intent
 import android.net.Uri
@@ -10,16 +10,21 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.example.playlistmaker.App
 import com.example.playlistmaker.R
+import com.example.playlistmaker.domain.api.SettingsInteractor
+import com.example.playlistmaker.presentation.Creator
 import com.google.android.material.appbar.MaterialToolbar
 
 
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var settingsInteractor: SettingsInteractor
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        settingsInteractor = Creator.provideSettingsInteractor(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.activitySettings)) { view, insets ->
             val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             view.updatePadding(top = statusBarInsets.top)
@@ -33,12 +38,10 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        val sharedPrefs = getSharedPreferences("APP_PR", MODE_PRIVATE)
-        val isDarkTheme = sharedPrefs.getBoolean("DARK_THEME", true)
-        themeSwitcher.isChecked = isDarkTheme
+        themeSwitcher.isChecked = settingsInteractor.isDarkThemeEnabled()
 
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
-            (applicationContext as App).switchTheme(checked)
+        themeSwitcher.setOnCheckedChangeListener { _, checked ->
+            settingsInteractor.switchTheme(checked)
         }
 
         findViewById<TextView>(R.id.share_app).setOnClickListener {
