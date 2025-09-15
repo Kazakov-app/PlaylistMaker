@@ -62,7 +62,6 @@ class SearchActivity : AppCompatActivity() {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         trackAdapter = TrackAdapter(trackList)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = trackAdapter
@@ -72,49 +71,14 @@ class SearchActivity : AppCompatActivity() {
         binding.searchHistoryRecyclerView.adapter = trackHistoryAdapter
 
         val searchInteractor = Creator.provideSearchTracksInteractor()
-        val historyRepository = Creator.getSearchHistoryRepository(this)
+        val historyInteractor = Creator.provideSearchHistoryInteractor(this)
         viewModel = ViewModelProvider(
             this,
-            SearchViewModel.getViewModelFactory(searchInteractor, historyRepository)
+            SearchViewModel.getViewModelFactory(searchInteractor, historyInteractor)
         ).get(SearchViewModel::class.java)
 
-        viewModel.getScreenState().observe(this) { state ->
-            when (state) {
-                is SearchState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                    binding.recyclerView.visibility = View.GONE
-                    binding.placeholderNothing.visibility = View.GONE
-                }
-
-                is SearchState.Content -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.recyclerView.visibility = View.VISIBLE
-                    trackList.clear()
-                    trackList.addAll(state.tracks)
-                    trackAdapter.notifyDataSetChanged()
-                    binding.placeholderNothing.visibility = View.GONE
-                }
-
-                is SearchState.Empty -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.recyclerView.visibility = View.GONE
-                    binding.placeholderNothing.visibility = View.VISIBLE
-                }
-
-                is SearchState.Start -> {
-                    binding.progressBar.visibility = View.GONE
-                    binding.progressBar.visibility = View.GONE
-                    binding.recyclerView.visibility = View.GONE
-                    binding.placeholderNothing.visibility = View.GONE
-                }
-
-            }
-        }
-
-        viewModel.getHistory().observe(this) { history ->
-            trackHistoryList.clear()
-            trackHistoryList.addAll(history)
-            trackHistoryAdapter.notifyDataSetChanged()
+        viewModel.state.observe(this) { state ->
+            renderState(state)
         }
 
         trackAdapter.onClickTrack = { track ->
@@ -132,18 +96,15 @@ class SearchActivity : AppCompatActivity() {
         }
 
         binding.etSearch.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && binding.etSearch.text.isNullOrEmpty() &&
-                (viewModel.getHistory().value?.isNotEmpty() == true)
-            ) {
-                binding.searchHistoryLayout.visibility = View.VISIBLE
+            if (hasFocus && binding.etSearch.text.isNullOrEmpty()) {
+                viewModel.showHistory()
             } else {
                 binding.searchHistoryLayout.visibility = View.GONE
             }
         }
 
         binding.clearHistoryButton.setOnClickListener {
-            historyRepository.clearHistory()
-            binding.searchHistoryLayout.visibility = View.GONE
+            viewModel.clearHistory()
         }
 
         if (savedInstanceState != null) {
@@ -161,10 +122,7 @@ class SearchActivity : AppCompatActivity() {
         binding.iwClear.setOnClickListener {
             binding.etSearch.setText("")
             hideKeyboard()
-            binding.recyclerView.visibility = View.GONE
-            binding.placeholderNothing.visibility = View.GONE
-            trackList.clear()
-            trackAdapter.notifyDataSetChanged()
+            viewModel.clearSearchResults()
         }
 
         binding.etSearch.addTextChangedListener(object : TextWatcher {
@@ -175,9 +133,7 @@ class SearchActivity : AppCompatActivity() {
                     binding.searchHistoryLayout.visibility = View.GONE
                     searchDebounce()
                 } else {
-                    if (viewModel.getHistory().value?.isNotEmpty() == true) {
-                        binding.searchHistoryLayout.visibility = View.VISIBLE
-                    }
+                    viewModel.showHistory()
                 }
             }
 
@@ -193,6 +149,80 @@ class SearchActivity : AppCompatActivity() {
                 true
             } else false
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun renderState(state: SearchState) {
+        when (state) {
+            is SearchState.Loading -> {
+                showLoading()
+            }
+
+            is SearchState.Content -> {
+                showContent(state.tracks)
+            }
+
+            is SearchState.Empty -> {
+                showEmpty()
+            }
+
+            is SearchState.History -> {
+                showHistory(state.tracks)
+            }
+
+            is SearchState.Start -> {
+                showStartScreen()
+            }
+        }
+    }
+
+    private fun showLoading() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderNothing.visibility = View.GONE
+        binding.searchHistoryLayout.visibility = View.GONE
+    }
+
+    private fun showContent(tracks: List<Track>) {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
+        binding.placeholderNothing.visibility = View.GONE
+        binding.searchHistoryLayout.visibility = View.GONE
+
+        trackList.clear()
+        trackList.addAll(tracks)
+        trackAdapter.notifyDataSetChanged()
+    }
+
+    private fun showEmpty() {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderNothing.visibility = View.VISIBLE
+        binding.searchHistoryLayout.visibility = View.GONE
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun showHistory(tracks: List<Track>) {
+        if (tracks.isEmpty()) {
+            binding.searchHistoryLayout.visibility = View.GONE
+            return
+        }
+
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderNothing.visibility = View.GONE
+        binding.searchHistoryLayout.visibility = View.VISIBLE
+
+        trackHistoryList.clear()
+        trackHistoryList.addAll(tracks)
+        trackHistoryAdapter.notifyDataSetChanged()
+    }
+
+    private fun showStartScreen() {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.GONE
+        binding.placeholderNothing.visibility = View.GONE
+        binding.searchHistoryLayout.visibility = View.GONE
     }
 
     private fun goToAudioPlayer(track: Track) {
@@ -224,3 +254,4 @@ class SearchActivity : AppCompatActivity() {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }
+

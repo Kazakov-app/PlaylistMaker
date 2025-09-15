@@ -20,14 +20,13 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val settingsRepository = Creator.provideSettingsRepository(this)
+        val settingsInteractor = Creator.provideSettingsInteractor(this)
         val sharingInteractor = Creator.provideSharingInteractor(this)
 
         viewModel = ViewModelProvider(
             this,
-            SettingsViewModel.Factory(settingsRepository, sharingInteractor)
-        )
-            .get(SettingsViewModel::class.java)
+            SettingsViewModel.Factory(settingsInteractor, sharingInteractor)
+        ).get(SettingsViewModel::class.java)
 
         viewModel.getThemeSettings().observe(this) { themeSettings ->
             if (binding.themeSwitcher.isChecked != themeSettings.isDarkTheme) {

@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.playlistmaker.settings.domain.SettingsRepository
+import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.model.ThemeSettings
 import com.example.playlistmaker.sharing.domain.SharingInteractor
 
 class SettingsViewModel(
-    private val settingsRepository: SettingsRepository,
+    private val settingsInteractor: SettingsInteractor,
     private val sharingInteractor: SharingInteractor
 ) : ViewModel() {
 
@@ -17,12 +17,12 @@ class SettingsViewModel(
     fun getThemeSettings(): LiveData<ThemeSettings> = themeSettings
 
     init {
-        themeSettings.value = settingsRepository.getThemeSettings()
+        themeSettings.value = settingsInteractor.getThemeSettings()
     }
 
     fun switchTheme(isDark: Boolean) {
         val newSettings = ThemeSettings(isDarkTheme = isDark)
-        settingsRepository.updateThemeSetting(newSettings)
+        settingsInteractor.updateThemeSetting(newSettings)
         themeSettings.value = newSettings
     }
 
@@ -39,12 +39,12 @@ class SettingsViewModel(
     }
 
     class Factory(
-        private val settingsRepository: SettingsRepository,
+        private val settingsInteractor: SettingsInteractor,
         private val sharingInteractor: SharingInteractor
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return SettingsViewModel(settingsRepository, sharingInteractor) as T
+            return SettingsViewModel(settingsInteractor, sharingInteractor) as T
         }
     }
 }

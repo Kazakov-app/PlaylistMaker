@@ -1,6 +1,5 @@
 package com.example.playlistmaker.search.domain
 
-import com.example.playlistmaker.search.domain.TracksRepository
 import java.util.concurrent.Executors
 
 class SearchTracksInteractorImpl(private val repository: TracksRepository) :
@@ -8,12 +7,13 @@ class SearchTracksInteractorImpl(private val repository: TracksRepository) :
     private val executor = Executors.newSingleThreadExecutor()
 
     override fun searchTracks(expression: String, consumer: SearchTracksInteractor.Consumer) {
-        try {
-            executor.execute {
-                consumer.consume(repository.searchTracks(expression))
+        executor.execute {
+            try {
+                val tracks = repository.searchTracks(expression)
+                consumer.consume(tracks)
+            } catch (e: Exception) {
+                consumer.consume(emptyList())
             }
-        } catch (e: Exception) {
-            consumer.consume(emptyList())
         }
     }
 }

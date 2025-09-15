@@ -16,6 +16,12 @@ import com.example.playlistmaker.settings.domain.SettingsRepository
 import com.example.playlistmaker.sharing.data.ExternalNavigatorImpl
 import com.example.playlistmaker.sharing.data.SharingInteractorImpl
 import com.example.playlistmaker.sharing.domain.SharingInteractor
+import com.example.playlistmaker.search.domain.SearchHistoryInteractor
+import com.example.playlistmaker.search.data.impl.SearchHistoryInteractorImpl
+import com.example.playlistmaker.settings.data.SettingsInteractorImpl
+import com.example.playlistmaker.settings.domain.SettingsInteractor
+import com.example.playlistmaker.sharing.data.SharingResourceRepositoryImpl
+import com.example.playlistmaker.sharing.domain.SharingResourceRepository
 
 object Creator {
 
@@ -29,10 +35,14 @@ object Creator {
         return SearchTracksInteractorImpl(getTracksRepository())
     }
 
-    fun getSearchHistoryRepository(context: Context): SearchHistoryRepository {
+    private fun getSearchHistoryRepository(context: Context): SearchHistoryRepository {
         val sharedPrefs =
             context.getSharedPreferences(PreferenceKeys.PREFS_NAME, Context.MODE_PRIVATE)
         return SearchHistoryRepositoryImpl(sharedPrefs)
+    }
+
+    fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractor {
+        return SearchHistoryInteractorImpl(getSearchHistoryRepository(context))
     }
 
     fun provideSettingsRepository(context: Context): SettingsRepository {
@@ -43,10 +53,19 @@ object Creator {
 
     fun provideSharingInteractor(context: Context): SharingInteractor {
         val externalNavigator = ExternalNavigatorImpl(context)
-        return SharingInteractorImpl(externalNavigator, context)
+        val resourceRepository = getSharingResourceRepository(context)
+        return SharingInteractorImpl(externalNavigator, resourceRepository)
     }
 
     fun provideAudioPlayerInteractor(): AudioPlayerInteractor {
         return AudioPlayerInteractorImpl()
+    }
+
+    fun provideSettingsInteractor(context: Context): SettingsInteractor {
+        return SettingsInteractorImpl(provideSettingsRepository(context))
+    }
+
+    private fun getSharingResourceRepository(context: Context): SharingResourceRepository {
+        return SharingResourceRepositoryImpl(context)
     }
 }

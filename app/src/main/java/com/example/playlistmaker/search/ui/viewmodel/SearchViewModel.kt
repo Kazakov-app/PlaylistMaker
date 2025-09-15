@@ -4,53 +4,67 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.playlistmaker.models.Track
-import com.example.playlistmaker.search.domain.SearchHistoryRepository
+import com.example.playlistmaker.search.domain.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.SearchState
 import com.example.playlistmaker.search.domain.SearchTracksInteractor
 
 class SearchViewModel(
     private val searchTracksInteractor: SearchTracksInteractor,
-    private val searchHistoryRepository: SearchHistoryRepository
+    private val searchHistoryInteractor: SearchHistoryInteractor
 ) : ViewModel() {
 
-    private val screenState = MutableLiveData<SearchState>()
-    fun getScreenState(): LiveData<SearchState> = screenState
-
-    private val history = MutableLiveData<List<Track>>()
-    fun getHistory(): LiveData<List<Track>> = history
+    private val _state = MutableLiveData<SearchState>()
+    val state: LiveData<SearchState> = _state
 
     init {
-        screenState.value = SearchState.Start
-        history.value = searchHistoryRepository.getHistory()
+        showHistory()
     }
 
     fun searchTracks(query: String) {
-        screenState.value = SearchState.Loading
+        _state.value = SearchState.Loading
         searchTracksInteractor.searchTracks(query, object : SearchTracksInteractor.Consumer {
             override fun consume(tracks: List<Track>) {
-                if (tracks.isEmpty()) {
-                    screenState.postValue(SearchState.Empty)
-                } else {
-                    screenState.postValue(SearchState.Content(tracks))
-                }
+                _state.postValue(
+                    if (tracks.isEmpty()) SearchState.Empty else SearchState.Content(
+                        tracks
+                    )
+                )
             }
         })
     }
 
     fun addTrackToHistory(track: Track) {
-        searchHistoryRepository.addTrack(track)
-        history.value = searchHistoryRepository.getHistory()
+        searchHistoryInteractor.addTrack(track)
+        showHistory()
+    }
+
+    fun showHistory() {
+        val history = searchHistoryInteractor.getHistory()
+        _state.value = if (history.isEmpty()) {
+            SearchState.Start
+        } else {
+            SearchState.History(history)
+        }
+    }
+
+    fun clearHistory() {
+        searchHistoryInteractor.clearHistory()
+        showHistory()
+    }
+
+    fun clearSearchResults() {
+        showHistory()
     }
 
     companion object {
         fun getViewModelFactory(
             searchTracksInteractor: SearchTracksInteractor,
-            searchHistoryRepository: SearchHistoryRepository
+            searchHistoryInteractor: SearchHistoryInteractor
         ): androidx.lifecycle.ViewModelProvider.Factory =
             object : androidx.lifecycle.ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SearchViewModel(searchTracksInteractor, searchHistoryRepository) as T
+                    return SearchViewModel(searchTracksInteractor, searchHistoryInteractor) as T
                 }
             }
     }
