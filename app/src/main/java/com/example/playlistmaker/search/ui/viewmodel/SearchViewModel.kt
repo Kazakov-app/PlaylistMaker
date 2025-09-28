@@ -7,10 +7,12 @@ import com.example.playlistmaker.models.Track
 import com.example.playlistmaker.search.domain.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.SearchState
 import com.example.playlistmaker.search.domain.SearchTracksInteractor
+import com.google.gson.Gson
 
 class SearchViewModel(
     private val searchTracksInteractor: SearchTracksInteractor,
-    private val searchHistoryInteractor: SearchHistoryInteractor
+    private val searchHistoryInteractor: SearchHistoryInteractor,
+    private val gson: Gson
 ) : ViewModel() {
 
     private val _state = MutableLiveData<SearchState>()
@@ -56,16 +58,7 @@ class SearchViewModel(
         showHistory()
     }
 
-    companion object {
-        fun getViewModelFactory(
-            searchTracksInteractor: SearchTracksInteractor,
-            searchHistoryInteractor: SearchHistoryInteractor
-        ): androidx.lifecycle.ViewModelProvider.Factory =
-            object : androidx.lifecycle.ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SearchViewModel(searchTracksInteractor, searchHistoryInteractor) as T
-                }
-            }
+    fun jsonTrack(track: Track): String {
+        return gson.toJson(track)
     }
 }

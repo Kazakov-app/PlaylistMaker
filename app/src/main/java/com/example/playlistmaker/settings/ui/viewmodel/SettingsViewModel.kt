@@ -3,7 +3,6 @@ package com.example.playlistmaker.settings.ui.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.playlistmaker.settings.domain.SettingsInteractor
 import com.example.playlistmaker.settings.domain.model.ThemeSettings
 import com.example.playlistmaker.sharing.domain.SharingInteractor
@@ -36,15 +35,5 @@ class SettingsViewModel(
 
     fun openAgreement() {
         sharingInteractor.openTerms()
-    }
-
-    class Factory(
-        private val settingsInteractor: SettingsInteractor,
-        private val sharingInteractor: SharingInteractor
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return SettingsViewModel(settingsInteractor, sharingInteractor) as T
-        }
     }
 }
