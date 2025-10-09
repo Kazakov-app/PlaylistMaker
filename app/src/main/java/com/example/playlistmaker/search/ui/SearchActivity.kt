@@ -11,7 +11,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.models.Track
@@ -19,10 +18,7 @@ import com.example.playlistmaker.player.ui.AudioPlayerActivity
 import com.example.playlistmaker.search.domain.SearchState
 import com.example.playlistmaker.search.ui.adapters.TrackAdapter
 import com.example.playlistmaker.search.ui.viewmodel.SearchViewModel
-//import com.example.playlistmaker.util.Creator
-import com.google.gson.Gson
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
 
 class SearchActivity : AppCompatActivity() {
 
@@ -221,9 +217,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun goToAudioPlayer(track: Track) {
-        val trackJson = viewModel.jsonTrack(track)
         val intent = Intent(this, AudioPlayerActivity::class.java)
-        intent.putExtra(TRACK, trackJson)
+        intent.putExtra(TRACK, track)
         startActivity(intent)
     }
 

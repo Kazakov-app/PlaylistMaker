@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("plugin.parcelize")
 }
 
 android {
@@ -55,4 +56,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.koin.android)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.fragment.ktx)
 }
