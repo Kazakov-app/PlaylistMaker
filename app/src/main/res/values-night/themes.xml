@@ -18,6 +18,7 @@
         <item name="textAppearanceBody1">@color/white</item>
         <item name="textAppearanceBody2">@color/white</item>
         <item name="buttonTint">@color/white</item>
+        <item name="tabIndicator">@color/transparent</item>
 
     </style>
 

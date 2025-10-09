@@ -1,5 +1,6 @@
 package com.example.playlistmaker.player.ui
 
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -26,11 +27,18 @@ class AudioPlayerActivity : AppCompatActivity() {
         binding = ActivityAudioPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val trackJson = intent.getStringExtra(TRACK) ?: ""
-        viewModel = getViewModel { parametersOf(trackJson) }
+        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(TRACK, Track::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(TRACK)
+        }
+
+        viewModel = getViewModel { parametersOf(track) }
         setupObservers()
         setupPlaybackUI()
     }
+
 
     private fun setupTrackInfo(track: Track) {
         binding.trackName.text = track.trackName
@@ -53,7 +61,10 @@ class AudioPlayerActivity : AppCompatActivity() {
         Glide.with(this)
             .load(imageUrl)
             .placeholder(R.drawable.ic_placeholder_312)
-            .transform(RoundedCorners(ViewUtils.dpToPx(8f, this)))
+            .transform(
+                RoundedCorners
+                    (ViewUtils.dpToPx(8f, this))
+            )
             .into(binding.placeholderTrack)
     }
 

@@ -71,4 +71,9 @@
         <item name="android:textFontWeight">@integer/fw_100</item>
         <item name="drawableTint">@color/white</item>
     </style>
+
+    <style name="TabLayoutTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+    </style>
+
 </resources>
