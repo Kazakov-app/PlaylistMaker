@@ -267,4 +267,8 @@
         <item name="layout_constraintHorizontal_bias">1</item>
     </style>
 
+    <style name="TabLayoutTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+    </style>
+
 </resources>

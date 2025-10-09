@@ -15,8 +15,7 @@ class ViewPagerAdapter(
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> FavoritesFragment.newInstance()
-            1 -> PlaylistFragment.newInstance()
-            else -> FavoritesFragment.newInstance()
+            else -> PlaylistFragment.newInstance()
         }
     }
 }
