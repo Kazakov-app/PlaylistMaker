@@ -4,7 +4,7 @@
         android:icon="@drawable/ic_search"
         android:title="@string/search" />
     <item
-        android:id="@+id/mediaLibraryFragment"
+        android:id="@+id/mediaFragment"
         android:icon="@drawable/ic_media"
         android:title="@string/c_media" />
     <item

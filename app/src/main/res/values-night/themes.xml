@@ -2,8 +2,9 @@
     <!-- Base application theme. -->
     <style name="Theme.PlaylistMaker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">@color/dark_gray</item>
         <item name="android:colorBackground">@color/dark_gray</item>
         <item name="android:iconTint">@color/white</item>
         <item name="colorOnBackground">@color/white</item>
