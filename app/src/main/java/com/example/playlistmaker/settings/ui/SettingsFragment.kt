@@ -1,26 +1,34 @@
 package com.example.playlistmaker.settings.ui
 
-import androidx.activity.enableEdgeToEdge
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.databinding.ActivitySettingsBinding
+import androidx.fragment.app.Fragment
+import com.example.playlistmaker.databinding.FragmentSettingsBinding
 import com.example.playlistmaker.settings.ui.viewmodel.SettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsFragment : Fragment() {
+    private lateinit var binding: FragmentSettingsBinding
 
-    private lateinit var binding: ActivitySettingsBinding
-    private val viewModel: SettingsViewModel by viewModel { parametersOf(this) }
+    private val viewModel: SettingsViewModel by viewModel { parametersOf(requireContext()) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        viewModel.getThemeSettings().observe(this) { themeSettings ->
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getThemeSettings().observe(viewLifecycleOwner) { themeSettings ->
             if (binding.themeSwitcher.isChecked != themeSettings.isDarkTheme) {
                 binding.themeSwitcher.isChecked = themeSettings.isDarkTheme
             }
@@ -31,7 +39,7 @@ class SettingsActivity : AppCompatActivity() {
             AppCompatDelegate.setDefaultNightMode(
                 if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
             )
-            getDelegate().applyDayNight()
+            (requireActivity() as AppCompatActivity).delegate.applyDayNight()
         }
 
         binding.shareApp.setOnClickListener {
@@ -45,7 +53,5 @@ class SettingsActivity : AppCompatActivity() {
         binding.termsOfUse.setOnClickListener {
             viewModel.openAgreement()
         }
-
-        binding.toolbar.setNavigationOnClickListener { finish() }
     }
 }

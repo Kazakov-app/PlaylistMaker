@@ -7,24 +7,25 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmaker.databinding.ActivitySearchBinding
+import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.models.Track
 import com.example.playlistmaker.player.ui.AudioPlayerActivity
 import com.example.playlistmaker.search.domain.SearchState
 import com.example.playlistmaker.search.ui.adapters.TrackAdapter
 import com.example.playlistmaker.search.ui.viewmodel.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
-class SearchActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivitySearchBinding
-    private val viewModel: SearchViewModel by viewModel()
-
+class SearchFragment : Fragment() {
+    private lateinit var binding: FragmentSearchBinding
+    private val viewModel: SearchViewModel by viewModel { parametersOf(requireContext()) }
     private var trackList = ArrayList<Track>()
     private var trackHistoryList = ArrayList<Track>()
 
@@ -39,36 +40,27 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun searchDebounce() {
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-    }
-
-    private var isClickAllowed = true
-    private fun clickDebounce(): Boolean {
-        val current = isClickAllowed
-        if (isClickAllowed) {
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
-            isClickAllowed = false
-        }
-        return current
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         trackAdapter = TrackAdapter(trackList)
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = trackAdapter
 
         trackHistoryAdapter = TrackAdapter(trackHistoryList)
-        binding.searchHistoryRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.searchHistoryRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.searchHistoryRecyclerView.adapter = trackHistoryAdapter
 
-        viewModel.state.observe(this) { state ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             renderState(state)
         }
 
@@ -98,12 +90,6 @@ class SearchActivity : AppCompatActivity() {
             viewModel.clearHistory()
         }
 
-        if (savedInstanceState != null) {
-            val restoredText = savedInstanceState.getString(SEARCH_TEXT_KEY)
-            binding.etSearch.setText(restoredText)
-        }
-
-        binding.toolbar.setNavigationOnClickListener { finish() }
         binding.update.setOnClickListener {
             val query = binding.etSearch.text.toString()
             if (query.isNotEmpty()) {
@@ -174,6 +160,7 @@ class SearchActivity : AppCompatActivity() {
         binding.searchHistoryLayout.visibility = View.GONE
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showContent(tracks: List<Track>) {
         binding.progressBar.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
@@ -216,30 +203,33 @@ class SearchActivity : AppCompatActivity() {
         binding.searchHistoryLayout.visibility = View.GONE
     }
 
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private var isClickAllowed = true
+    private fun clickDebounce(): Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(InputMethodManager::class.java)
+        imm?.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
+    }
+
     private fun goToAudioPlayer(track: Track) {
-        val intent = Intent(this, AudioPlayerActivity::class.java)
+        val intent = Intent(requireContext(), AudioPlayerActivity::class.java)
         intent.putExtra(TRACK, track)
         startActivity(intent)
     }
 
-    private fun hideKeyboard() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_TEXT_KEY, binding.etSearch.text.toString())
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        val restoredText = savedInstanceState.getString(SEARCH_TEXT_KEY)
-        binding.etSearch.setText(restoredText)
-    }
-
     companion object {
-        private const val SEARCH_TEXT_KEY = "TEXT_KEY"
         private const val TRACK = "TRACK_DATA"
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L

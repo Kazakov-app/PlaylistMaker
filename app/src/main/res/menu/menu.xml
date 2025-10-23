@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/searchFragment"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search" />
+    <item
+        android:id="@+id/mediaLibraryFragment"
+        android:icon="@drawable/ic_media"
+        android:title="@string/c_media" />
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_tools"
+        android:title="@string/settings" />
+</menu>

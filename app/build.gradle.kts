@@ -58,4 +58,10 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.adapterdelegates4.kotlin.dsl)
+    implementation(libs.adapterdelegates4.kotlin.dsl.viewbinding)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.fragment.ktx.v156)
+    implementation(libs.material.v1130)
 }
