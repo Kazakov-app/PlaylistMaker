@@ -87,6 +87,7 @@
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:fontFamily">@font/ys_display_medium</item>
         <item name="android:textFontWeight">@integer/fw_100</item>
+        <item name="android:paddingTop">?attr/actionBarSize</item>
     </style>
 
     <style name="TextViewRecycler">

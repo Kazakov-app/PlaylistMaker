@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?android:attr/colorBackground"
-        app:navigationIcon="@drawable/ic_arrow_back"
         app:title="@string/c_tools"
         app:titleTextAppearance="@style/ToolbarTitle" />
 
