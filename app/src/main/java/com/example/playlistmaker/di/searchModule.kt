@@ -3,49 +3,65 @@ package com.example.playlistmaker.di
 import android.content.Context
 import com.example.playlistmaker.search.data.impl.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.search.data.impl.TracksRepositoryImpl
-import com.example.playlistmaker.search.data.impl.SearchHistoryInteractorImpl
+import com.example.playlistmaker.search.data.network.ITunesApiService
 import com.example.playlistmaker.search.data.network.NetworkClient
 import com.example.playlistmaker.search.data.network.RetrofitNetworkClient
 import com.example.playlistmaker.search.domain.SearchHistoryInteractor
+import com.example.playlistmaker.search.domain.SearchHistoryInteractorImpl
 import com.example.playlistmaker.search.domain.SearchHistoryRepository
 import com.example.playlistmaker.search.domain.SearchTracksInteractor
 import com.example.playlistmaker.search.domain.SearchTracksInteractorImpl
 import com.example.playlistmaker.search.domain.TracksRepository
 import com.example.playlistmaker.search.ui.viewmodel.SearchViewModel
 import com.example.playlistmaker.util.PreferenceKeys.PREFS_NAME
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 val searchModule = module {
 
+    single {
+        Retrofit.Builder()
+            .baseUrl("https://itunes.apple.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    single<ITunesApiService> {
+        get<Retrofit>().create(ITunesApiService::class.java)
+    }
+
     single<NetworkClient> {
-        RetrofitNetworkClient()
+        RetrofitNetworkClient(iTunesService = get())
     }
 
     single<TracksRepository> {
         TracksRepositoryImpl(get())
     }
 
-    single<SearchTracksInteractor> {
+    factory<SearchTracksInteractor> {
         SearchTracksInteractorImpl(get())
     }
 
-    single<SearchHistoryRepository> {
+    factory<SearchHistoryRepository> { (context: Context) ->
+        val sharedPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         SearchHistoryRepositoryImpl(
-            sharedPrefs = androidContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE),
+            sharedPrefs = sharedPrefs,
             gson = get()
         )
     }
 
-    single<SearchHistoryInteractor> {
-        SearchHistoryInteractorImpl(get())
+    factory<SearchHistoryInteractor> { (context: Context) ->
+        val repository = get<SearchHistoryRepository> { parametersOf(context) }
+        SearchHistoryInteractorImpl(repository)
     }
 
-    viewModel {
+    viewModel { (context: Context) ->
         SearchViewModel(
             searchTracksInteractor = get(),
-            searchHistoryInteractor = get()
+            searchHistoryInteractor = get { parametersOf(context) }
         )
     }
 }
