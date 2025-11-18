@@ -5,25 +5,30 @@ import com.example.playlistmaker.models.Track
 import com.example.playlistmaker.player.data.AudioPlayerHelper
 import com.example.playlistmaker.player.domain.AudioPlayerInteractor
 import com.example.playlistmaker.player.domain.AudioPlayerInteractorImpl
+import com.example.playlistmaker.player.domain.AudioPlayerRepository
 import com.example.playlistmaker.player.ui.viewmodel.AudioPlayerViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val playerModule = module {
-    factory<AudioPlayerInteractor> {
-        AudioPlayerInteractorImpl()
-    }
 
-    factory { MediaPlayer() }
-
-    factory { (track: Track) ->
+    factory<AudioPlayerRepository> { (track: Track) ->
         val player = get<MediaPlayer>()
         AudioPlayerHelper(track, player)
     }
 
+    factory<AudioPlayerInteractor> { (track: Track) ->
+        AudioPlayerInteractorImpl(
+            repository = get<AudioPlayerRepository> { parametersOf(track) }
+        )
+    }
+
+    factory { MediaPlayer() }
+
     viewModel { (track: Track) ->
         AudioPlayerViewModel(
-            interactor = get(),
+            interactor = get { parametersOf(track) },
             track = track
         )
     }

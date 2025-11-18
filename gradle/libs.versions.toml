@@ -1,23 +1,23 @@
 [versions]
 adapterdelegates4KotlinDsl = "4.3.2"
-agp = "8.13.0"
+agp = "8.13.1"
 fragmentKtx = "1.8.9"
-fragmentKtxVersion = "1.5.6"
 glide = "4.14.0"
-koinAndroid = "3.3.0"
-kotlin = "1.9.24"
+koinAndroid = "4.1.1"
+kotlin = "2.2.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
-material = "1.12.0"
+kotlinxCoroutinesAndroid = "1.10.2"
+material = "1.13.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
-materialVersion = "1.13.0"
 navigationFragmentKtx = "2.9.5"
 okhttp3Integration = "5.0.5"
 retrofit = "2.9.0"
+roomVersion = "2.8.3"
 viewpager2 = "1.1.0"
 
 [libraries]
@@ -25,9 +25,10 @@ adapterdelegates4-kotlin-dsl = { module = "com.hannesdorfmann:adapterdelegates4-
 adapterdelegates4-kotlin-dsl-viewbinding = { module = "com.hannesdorfmann:adapterdelegates4-kotlin-dsl-viewbinding", version.ref = "adapterdelegates4KotlinDsl" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
-androidx-fragment-ktx-v156 = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtxVersion" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragmentKtx" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
@@ -37,14 +38,13 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-material-v1130 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 okhttp3-integration = { module = "com.github.bumptech.glide:okhttp3-integration", version.ref = "okhttp3Integration" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-

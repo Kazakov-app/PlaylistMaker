@@ -36,13 +36,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+
+    kotlin {
+        jvmToolchain(11)
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -62,6 +62,12 @@ dependencies {
     implementation(libs.adapterdelegates4.kotlin.dsl.viewbinding)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.fragment.ktx.v156)
-    implementation(libs.material.v1130)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+}
+
+
+configurations.all {
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
 }
