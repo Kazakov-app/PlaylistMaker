@@ -1,6 +1,10 @@
 package com.example.playlistmaker.di
 
 import android.media.MediaPlayer
+import com.example.playlistmaker.media.data.FavoritesRepositoryImpl
+import com.example.playlistmaker.media.domain.FavoritesInteractor
+import com.example.playlistmaker.media.domain.FavoritesInteractorImpl
+import com.example.playlistmaker.media.domain.FavoritesRepository
 import com.example.playlistmaker.models.Track
 import com.example.playlistmaker.player.data.AudioPlayerHelper
 import com.example.playlistmaker.player.domain.AudioPlayerInteractor
@@ -26,10 +30,22 @@ val playerModule = module {
 
     factory { MediaPlayer() }
 
+    factory<FavoritesRepository> {
+        FavoritesRepositoryImpl(
+            appDatabase = get(),
+            converter = get()
+        )
+    }
+
+    factory<FavoritesInteractor> {
+        FavoritesInteractorImpl(repository = get())
+    }
+
     viewModel { (track: Track) ->
         AudioPlayerViewModel(
             interactor = get { parametersOf(track) },
-            track = track
+            track = track,
+            favoritesInteractor = get()
         )
     }
 }
