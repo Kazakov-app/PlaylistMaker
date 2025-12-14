@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("plugin.parcelize")
+    kotlin("kapt")
 }
 
 android {
@@ -33,12 +34,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(17)
     }
 }
 
@@ -65,9 +66,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
 }
 
 
 configurations.all {
     exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+    exclude(group = "com.intellij", module = "annotations")
 }

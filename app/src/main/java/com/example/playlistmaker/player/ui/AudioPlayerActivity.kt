@@ -1,6 +1,5 @@
 package com.example.playlistmaker.player.ui
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,11 +11,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityAudioPlayerBinding
-import com.example.playlistmaker.player.domain.AudioPlayerState
 import com.example.playlistmaker.models.Track
+import com.example.playlistmaker.player.domain.AudioPlayerState
 import com.example.playlistmaker.player.ui.viewmodel.AudioPlayerViewModel
 import com.example.playlistmaker.search.ui.utils.ViewUtils
-import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -24,7 +23,9 @@ import java.util.Locale
 class AudioPlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAudioPlayerBinding
-    private lateinit var viewModel: AudioPlayerViewModel
+    private val viewModel: AudioPlayerViewModel by viewModel {
+        parametersOf(requireNotNull(intent.getParcelableExtra<Track>(TRACK)))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -40,18 +41,9 @@ class AudioPlayerActivity : AppCompatActivity() {
             insets
         }
 
-        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(TRACK, Track::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(TRACK)
-        }
-
-        viewModel = getViewModel { parametersOf(track) }
         setupObservers()
         setupPlaybackUI()
     }
-
 
     private fun setupTrackInfo(track: Track) {
         binding.trackName.text = track.trackName
@@ -104,11 +96,19 @@ class AudioPlayerActivity : AppCompatActivity() {
                 }
             }
         }
+        viewModel.isFavorite().observe(this) { isFavorite ->
+            binding.favoriteTrack.setImageResource(
+                if (isFavorite) R.drawable.ic_dislike else R.drawable.ic_like
+            )
+        }
     }
 
     private fun setupPlaybackUI() {
         binding.playTrack.setOnClickListener {
             viewModel.togglePlayback()
+        }
+        binding.favoriteTrack.setOnClickListener {
+            viewModel.onFavoriteClicked()
         }
         binding.backButton.setNavigationOnClickListener { finish() }
     }
