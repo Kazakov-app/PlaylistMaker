@@ -62,20 +62,21 @@ class SearchFragment : Fragment() {
 
         trackAdapter.onClickTrack = { track ->
             if (clickDebounce()) {
-                viewModel.addTrackToHistory(track)
+                viewModel.addTrackToHistoryWithoutShowing(track)
                 goToAudioPlayer(track)
             }
         }
 
         trackHistoryAdapter.onClickTrack = { track ->
             if (clickDebounce()) {
-                viewModel.addTrackToHistory(track)
+                viewModel.addTrackToHistoryWithoutShowing(track)
                 goToAudioPlayer(track)
             }
         }
 
         binding.etSearch.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && binding.etSearch.text.isNullOrEmpty()) {
+            val query = binding.etSearch.text.toString()
+            if (hasFocus && query.isEmpty()) {
                 viewModel.showHistory()
             } else {
                 binding.searchHistoryLayout.visibility = View.GONE
@@ -92,6 +93,7 @@ class SearchFragment : Fragment() {
                 viewModel.performSearchDebounced(query)
             }
         }
+
         binding.iwClear.setOnClickListener {
             viewModel.resetToInitialState()
             binding.etSearch.setText("")
@@ -119,6 +121,7 @@ class SearchFragment : Fragment() {
                 val query = binding.etSearch.text.toString()
                 if (query.isNotEmpty()) {
                     viewModel.performSearchDebounced(query)
+                    hideKeyboard()
                 }
                 true
             } else false
@@ -178,6 +181,12 @@ class SearchFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun showHistory(tracks: List<Track>) {
+        val query = binding.etSearch.text.toString()
+        if (query.isNotEmpty()) {
+            binding.searchHistoryLayout.visibility = View.GONE
+            return
+        }
+
         if (tracks.isEmpty()) {
             binding.searchHistoryLayout.visibility = View.GONE
             return
@@ -229,4 +238,3 @@ class SearchFragment : Fragment() {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 }
-

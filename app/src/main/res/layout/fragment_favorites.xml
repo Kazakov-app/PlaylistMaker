@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/h_p_16"
-            android:layout_marginBottom="64dp"/>
+            android:layout_marginBottom="@dimen/layout_marginBottom_playlist"/>
 
         <LinearLayout
             android:id="@+id/placeholder_nofavourites"
@@ -30,6 +30,7 @@
                 android:layout_marginTop="@dimen/margin_16"
                 android:layout_marginBottom="100dp"
                 android:text="@string/no_media" />
+
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>

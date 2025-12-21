@@ -20,6 +20,8 @@
         <item name="textAppearanceBody2">@color/dark_gray</item>
         <item name="buttonTint">@color/dark_gray</item>
         <item name="tabIndicator">@color/transparent</item>
+        <item name="colorControlNormal">@color/light_gray</item>
+        <item name="colorTertiary">@color/text_gray</item>
 
     </style>
 

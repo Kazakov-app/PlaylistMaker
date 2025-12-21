@@ -2,6 +2,7 @@ package com.example.playlistmaker.main
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -30,5 +31,9 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         bottomNav.setupWithNavController(navController)
+    }
+    fun showBottomNav(show: Boolean) {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
+        bottomNav.visibility = if (show) View.VISIBLE else View.GONE
     }
 }

@@ -33,7 +33,6 @@ class SearchViewModel(
                     if (tracks.isEmpty()) SearchState.Empty
                     else SearchState.Content(tracks)
                 }
-
                 .onStart { emit(SearchState.Loading) }
                 .collect { state ->
                     _screenState.value = state
@@ -45,6 +44,12 @@ class SearchViewModel(
     fun addTrackToHistory(track: Track) {
         searchHistoryInteractor.addTrack(track)
         showHistory()
+    }
+
+    fun addTrackToHistoryWithoutShowing(track: Track) {
+        viewModelScope.launch {
+            searchHistoryInteractor.addTrack(track)
+        }
     }
 
     fun showHistory() {
@@ -59,7 +64,6 @@ class SearchViewModel(
         }
     }
 
-
     fun clearHistory() {
         searchHistoryInteractor.clearHistory()
         showHistory()
@@ -68,7 +72,6 @@ class SearchViewModel(
     fun clearSearchResults() {
         showHistory()
     }
-
 
     fun resetToInitialState() {
         _screenState.value = SearchState.Start

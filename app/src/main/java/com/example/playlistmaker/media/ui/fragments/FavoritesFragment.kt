@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -49,10 +48,6 @@ class FavoritesFragment : Fragment() {
                     trackList.clear()
                     trackList.addAll(state.tracks)
                     trackAdapter.notifyDataSetChanged()
-
-                    _binding!!.recyclerViewFavourites.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        bottomMargin = if (trackList.size < 4) 700 else 100
-                    }
                 }
 
                 is FavoritesState.Empty -> {
