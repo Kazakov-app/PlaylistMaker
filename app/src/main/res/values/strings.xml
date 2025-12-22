@@ -27,7 +27,7 @@
     <string name="playlist">Плейлисты</string>
     <string name="download_failed">Загрузка не удалась. Проверьте подключение к интернету</string>
     <string name="clear_history">Очистить историю</string>
-    <string name="your_history">Ваша история</string>
+    <string name="your_history">Вы искали</string>
     <string name="country">Страна</string>
     <string name="genre">Жанр</string>
     <string name="year">Год</string>
