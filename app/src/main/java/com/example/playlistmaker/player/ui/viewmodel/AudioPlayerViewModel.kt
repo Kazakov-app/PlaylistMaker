@@ -113,6 +113,6 @@ class AudioPlayerViewModel(
     }
 
     companion object {
-        private const val TIME_PLAY_TRACK = "0:30"
+        private const val TIME_PLAY_TRACK = "00:00"
     }
 }

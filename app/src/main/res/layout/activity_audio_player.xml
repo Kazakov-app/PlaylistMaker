@@ -227,12 +227,12 @@
         android:background="@drawable/bottom_sheet"
         android:padding="8dp"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="369dp"
+        app:behavior_peekHeight="480dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="4dp"
             android:src="@drawable/gray_selector"
             android:layout_gravity="center_horizontal"/>
 

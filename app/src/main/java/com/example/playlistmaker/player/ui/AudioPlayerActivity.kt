@@ -94,6 +94,11 @@ class AudioPlayerActivity : AppCompatActivity() {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             viewModel.loadPlaylists()
         }
+        supportFragmentManager.addOnBackStackChangedListener {
+            val hasFragments = supportFragmentManager.backStackEntryCount > 0
+            findViewById<FrameLayout>(R.id.fragment_container).visibility =
+                if (hasFragments) View.VISIBLE else View.GONE
+        }
     }
 
     private fun setupTrackInfo(track: Track) {
@@ -102,7 +107,11 @@ class AudioPlayerActivity : AppCompatActivity() {
         binding.timeTrackInfo.text = SimpleDateFormat("mm:ss", Locale.getDefault())
             .format(track.trackTimeMillis)
         binding.yearTrackInfo.text = track.releaseDate?.substringBefore("-") ?: RES_NO
-        binding.genreTrackInfo.text = track.genreName ?: RES_NO
+        binding.genreTrackInfo.text = if (!track.genreName.isNullOrEmpty()) {
+            track.genreName
+        } else {
+            RES_NO
+        }
         binding.countryTrackInfo.text = track.country
 
         if (track.collectionName.isNullOrEmpty()) {
@@ -161,7 +170,9 @@ class AudioPlayerActivity : AppCompatActivity() {
 
         viewModel.addStatus.observe(this) { status ->
             Toast.makeText(this, status, Toast.LENGTH_SHORT).show()
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            if (status.startsWith("Добавлено")) {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            }
         }
     }
 
@@ -195,7 +206,7 @@ class AudioPlayerActivity : AppCompatActivity() {
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, CreatePlaylistFragment())
-            .addToBackStack(null)
+            .addToBackStack("create_playlist")
             .commit()
 
         findViewById<FrameLayout>(R.id.fragment_container).visibility = View.VISIBLE

@@ -22,6 +22,7 @@ class TracksRepositoryImpl(
             val favoriteIds = favoriteTrackDao.getAllTrackIds().toSet()
 
             response.results.map {
+                val genreName = it.primaryGenreName ?: it.genreName
                 Track(
                     trackName = it.trackName,
                     artistName = it.artistName,
