@@ -10,11 +10,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
@@ -59,8 +61,14 @@ class CreatePlaylistFragment : Fragment() {
 
         (activity as? MainActivity)?.showBottomNav(false)
 
-        binding.backButton.setNavigationOnClickListener {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                checkBeforeExit()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
+        binding.backButton.setNavigationOnClickListener {
             checkBeforeExit()
         }
 
@@ -88,7 +96,7 @@ class CreatePlaylistFragment : Fragment() {
         viewModel.playlistCreated.observe(viewLifecycleOwner) {
             it?.let {
                 showToast("Плейлист «${viewModel.name.value}» создан")
-                requireActivity().onBackPressedDispatcher.onBackPressed()
+                findNavController().popBackStack()
             }
         }
 
@@ -142,11 +150,11 @@ class CreatePlaylistFragment : Fragment() {
                 .setMessage("Все несохраненные данные будут потеряны")
                 .setNegativeButton("Отмена", null)
                 .setPositiveButton("Завершить") { _, _ ->
-                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    findNavController().popBackStack()
                 }
                 .show()
         } else {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            findNavController().popBackStack()
         }
     }
 
