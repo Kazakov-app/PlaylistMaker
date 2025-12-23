@@ -8,7 +8,8 @@ data class TrackDto(
     val trackId: Int,
     val collectionName: String,
     val releaseDate: String?,
-    val genreName: String,
+    val primaryGenreName: String?,
+    val genreName: String?,
     val country: String,
     val previewUrl: String
 )
