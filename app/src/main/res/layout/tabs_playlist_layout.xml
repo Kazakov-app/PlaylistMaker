@@ -22,15 +22,15 @@
         app:shapeAppearanceOverlay="@style/PlaylistImageRounded" />
 
     <TextView
-        style="@style/TextViewTab"
         android:id="@+id/playlist_name"
+        style="@style/TextViewTab"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/playlist_image" />
 
     <TextView
-        style="@style/TextViewTab"
         android:id="@+id/playlist_count"
+        style="@style/TextViewTab"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playlist_name" />
 </androidx.constraintlayout.widget.ConstraintLayout>

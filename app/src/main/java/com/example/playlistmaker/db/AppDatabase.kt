@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 
 @Database(
-    version = 3,
+    version = 4,
     entities = [FavoriteTrackEntity::class, PlaylistEntity::class, PlaylistTrackEntity::class]
 )
 abstract class AppDatabase : RoomDatabase() {

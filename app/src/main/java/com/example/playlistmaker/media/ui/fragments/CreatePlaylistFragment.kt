@@ -19,15 +19,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.example.playlistmaker.main.MainActivity
 import com.example.playlistmaker.media.ui.viewmodel.CreatePlaylistViewModel
 import com.example.playlistmaker.search.ui.utils.ViewUtils
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.parameter.parametersOf
 
 class CreatePlaylistFragment : Fragment() {
     private lateinit var binding: FragmentCreatePlaylistBinding
-    private val viewModel: CreatePlaylistViewModel by viewModel()
+    private lateinit var viewModel: CreatePlaylistViewModel
+    private val playlistId: Int by lazy { arguments?.getInt(PLAYLIST_ID) ?: -1 }
 
     private val pickMedia = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -43,7 +46,7 @@ class CreatePlaylistFragment : Fragment() {
         if (isGranted) {
             launchPhotoPicker()
         } else {
-            Toast.makeText(requireContext(), "Разрешение не предоставлено:(", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), R.string.no_permission, Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -58,6 +61,8 @@ class CreatePlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = getViewModel { parametersOf(playlistId) }
 
         (activity as? MainActivity)?.showBottomNav(false)
 
@@ -93,20 +98,42 @@ class CreatePlaylistFragment : Fragment() {
             }
         }
 
-        viewModel.playlistCreated.observe(viewLifecycleOwner) {
-            it?.let {
-                showToast("Плейлист «${viewModel.name.value}» создан")
-                findNavController().popBackStack()
-            }
-        }
-
         viewModel.isCreateButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
             binding.createPlaylist.isEnabled = isEnabled
         }
 
-        binding.createPlaylist.setOnClickListener {
-            viewModel.createPlaylist()
+        viewModel.existingName.observe(viewLifecycleOwner) { name ->
+            binding.playlistsName.setText(name)
+
         }
+        viewModel.existingDescription.observe(viewLifecycleOwner) { desc ->
+            binding.playlistDescription.setText(desc)
+        }
+
+
+        viewModel.playlistSaved.observe(viewLifecycleOwner) {
+            val action = if (playlistId == -1) "создан" else "сохранён"
+            Toast.makeText(
+                requireContext(),
+                "Плейлист «${viewModel.name.value}» $action", Toast.LENGTH_SHORT
+            )
+                .show()
+            findNavController().popBackStack()
+        }
+
+        binding.playlistsName.addTextChangedListener {
+            viewModel.updateName(it.toString())
+        }
+        binding.playlistDescription.addTextChangedListener {
+            viewModel.updateDescription(it.toString())
+        }
+
+        binding.createPlaylist.setOnClickListener {
+            viewModel.savePlaylist()
+        }
+
+        binding.playlistsName.setText(viewModel.existingName.value)
+        binding.playlistsName.setText(viewModel.description.value)
 
         updateCreateButtonState()
     }
@@ -146,10 +173,10 @@ class CreatePlaylistFragment : Fragment() {
     private fun checkBeforeExit() {
         if (viewModel.hasUnsavedChanges()) {
             AlertDialog.Builder(requireContext())
-                .setTitle("Завершить создание плейлиста?")
-                .setMessage("Все несохраненные данные будут потеряны")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Завершить") { _, _ ->
+                .setTitle("Завершить ${if (playlistId == -1) "создание" else "редактирование"}?")
+                .setMessage(R.string.data_loss)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.complete) { _, _ ->
                     findNavController().popBackStack()
                 }
                 .show()
@@ -158,8 +185,17 @@ class CreatePlaylistFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? MainActivity)?.showBottomNav(false)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         (activity as? MainActivity)?.showBottomNav(true)
+    }
+
+    companion object {
+        private const val PLAYLIST_ID = "playlistId"
     }
 }

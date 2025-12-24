@@ -284,7 +284,7 @@
         <item name="borderWidth">1dp</item>
         <item name="colorControlActivated">@color/edittext_stroke_color</item>
         <item name="hintTextColor">@color/edittext_hint_stroke_color</item>
-        <item name="android:textCursorDrawable">@drawable/cursor_color</item>
+        <item name="android:textCursorDrawable">@drawable/ic_cursor_color</item>
     </style>
 
     <style name="PlaylistImageRounded">
@@ -308,11 +308,11 @@
     </style>
 
     <style name="AppEditTextStyle" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
-        <item name="android:textCursorDrawable">@drawable/cursor_color</item>
+        <item name="android:textCursorDrawable">@drawable/ic_cursor_color</item>
     </style>
 
     <style name="CursorStyle" parent="">
-        <item name="android:textCursorDrawable">@drawable/cursor_color</item>
+        <item name="android:textCursorDrawable">@drawable/ic_cursor_color</item>
     </style>
 
     <style name="ItemPlaylistBottomSheet" parent="TextAppearance.MaterialComponents.Body2">

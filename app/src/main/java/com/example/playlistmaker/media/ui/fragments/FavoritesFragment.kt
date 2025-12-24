@@ -97,5 +97,4 @@ class FavoritesFragment : Fragment() {
         private const val CLICK_DEBOUNCE_DELAY = 1000L
         fun newInstance() = FavoritesFragment()
     }
-
 }

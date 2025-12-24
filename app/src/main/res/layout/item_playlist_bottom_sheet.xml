@@ -10,10 +10,10 @@
         android:layout_height="45dp"
         android:layout_marginStart="13dp"
         android:layout_marginTop="8dp"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_placeholder"
         android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
         android:scaleType="centerCrop"
+        android:src="@drawable/ic_placeholder"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/PlaylistImageRoundedSmall" />
