@@ -77,6 +77,10 @@ class CreatePlaylistFragment : Fragment() {
             checkBeforeExit()
         }
 
+        if (playlistId != -1) {
+            binding.backButton.title = getString(R.string.edit_playlist)
+        }
+
         binding.playlistImage.setOnClickListener {
             checkAndRequestPermission()
         }
@@ -104,12 +108,10 @@ class CreatePlaylistFragment : Fragment() {
 
         viewModel.existingName.observe(viewLifecycleOwner) { name ->
             binding.playlistsName.setText(name)
-
         }
         viewModel.existingDescription.observe(viewLifecycleOwner) { desc ->
             binding.playlistDescription.setText(desc)
         }
-
 
         viewModel.playlistSaved.observe(viewLifecycleOwner) {
             val action = if (playlistId == -1) "создан" else "сохранён"
@@ -121,21 +123,9 @@ class CreatePlaylistFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        binding.playlistsName.addTextChangedListener {
-            viewModel.updateName(it.toString())
-        }
-        binding.playlistDescription.addTextChangedListener {
-            viewModel.updateDescription(it.toString())
-        }
-
         binding.createPlaylist.setOnClickListener {
             viewModel.savePlaylist()
         }
-
-        binding.playlistsName.setText(viewModel.existingName.value)
-        binding.playlistsName.setText(viewModel.description.value)
-
-        updateCreateButtonState()
     }
 
     private fun launchPhotoPicker() {
@@ -161,19 +151,10 @@ class CreatePlaylistFragment : Fragment() {
         }
     }
 
-    private fun showToast(text: String) {
-        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun updateCreateButtonState() {
-        val nameNotEmpty = viewModel.name.value?.isNotBlank() == true
-        binding.createPlaylist.isEnabled = nameNotEmpty
-    }
-
     private fun checkBeforeExit() {
-        if (viewModel.hasUnsavedChanges()) {
+        if (playlistId == -1 && viewModel.hasUnsavedChanges()) {
             AlertDialog.Builder(requireContext())
-                .setTitle("Завершить ${if (playlistId == -1) "создание" else "редактирование"}?")
+                .setTitle(R.string.finish_creating)
                 .setMessage(R.string.data_loss)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.complete) { _, _ ->

@@ -55,5 +55,6 @@
     <string name="share_playlist_1">Поделиться</string>
     <string name="delete_playlist">Удалить плейлист</string>
     <string name="edit_playlist">Редактировать информацию</string>
+    <string name="finish_creating">Завершить создание плейлиста?</string>
 
 </resources>

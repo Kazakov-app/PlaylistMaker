@@ -147,7 +147,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/margin_16"
-                android:text="@string/clear_history" />
+                android:text="@string/clear_history"
+                app:cornerRadius="@dimen/btn_corners_54" />
         </LinearLayout>
 
     </ScrollView>

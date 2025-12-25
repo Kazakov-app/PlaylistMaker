@@ -24,17 +24,19 @@
             android:orientation="vertical"
             app:layout_constraintGuide_end="24dp" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/placeholder_track"
             style="@style/AlbumCoverImage"
             android:layout_width="match_parent"
             android:layout_height="300dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_placeholder_312"
             app:layout_constraintBottom_toTopOf="@id/playlist_name"
             app:layout_constraintEnd_toStartOf="@id/end_guideLine"
             app:layout_constraintStart_toEndOf="@id/start_guideLine"
             app:layout_constraintTop_toTopOf="@+id/back_button"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintVertical_chainStyle="packed"
+            app:shapeAppearanceOverlay="@style/PlaylistImageRounded" />
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/back_button"
