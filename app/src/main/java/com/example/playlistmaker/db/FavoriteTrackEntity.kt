@@ -17,4 +17,3 @@ data class FavoriteTrackEntity(
     val previewUrl: String,
     val addedTimestamp: Long
 )
-

@@ -19,15 +19,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentCreatePlaylistBinding
 import com.example.playlistmaker.main.MainActivity
 import com.example.playlistmaker.media.ui.viewmodel.CreatePlaylistViewModel
 import com.example.playlistmaker.search.ui.utils.ViewUtils
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.parameter.parametersOf
 
 class CreatePlaylistFragment : Fragment() {
     private lateinit var binding: FragmentCreatePlaylistBinding
-    private val viewModel: CreatePlaylistViewModel by viewModel()
+    private lateinit var viewModel: CreatePlaylistViewModel
+    private val playlistId: Int by lazy { arguments?.getInt(PLAYLIST_ID) ?: -1 }
 
     private val pickMedia = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -43,7 +46,7 @@ class CreatePlaylistFragment : Fragment() {
         if (isGranted) {
             launchPhotoPicker()
         } else {
-            Toast.makeText(requireContext(), "Разрешение не предоставлено:(", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), R.string.no_permission, Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -59,6 +62,8 @@ class CreatePlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = getViewModel { parametersOf(playlistId) }
+
         (activity as? MainActivity)?.showBottomNav(false)
 
         val callback = object : OnBackPressedCallback(true) {
@@ -70,6 +75,10 @@ class CreatePlaylistFragment : Fragment() {
 
         binding.backButton.setNavigationOnClickListener {
             checkBeforeExit()
+        }
+
+        if (playlistId != -1) {
+            binding.backButton.title = getString(R.string.edit_playlist)
         }
 
         binding.playlistImage.setOnClickListener {
@@ -93,22 +102,30 @@ class CreatePlaylistFragment : Fragment() {
             }
         }
 
-        viewModel.playlistCreated.observe(viewLifecycleOwner) {
-            it?.let {
-                showToast("Плейлист «${viewModel.name.value}» создан")
-                findNavController().popBackStack()
-            }
-        }
-
         viewModel.isCreateButtonEnabled.observe(viewLifecycleOwner) { isEnabled ->
             binding.createPlaylist.isEnabled = isEnabled
         }
 
-        binding.createPlaylist.setOnClickListener {
-            viewModel.createPlaylist()
+        viewModel.existingName.observe(viewLifecycleOwner) { name ->
+            binding.playlistsName.setText(name)
+        }
+        viewModel.existingDescription.observe(viewLifecycleOwner) { desc ->
+            binding.playlistDescription.setText(desc)
         }
 
-        updateCreateButtonState()
+        viewModel.playlistSaved.observe(viewLifecycleOwner) {
+            val action = if (playlistId == -1) "создан" else "сохранён"
+            Toast.makeText(
+                requireContext(),
+                "Плейлист «${viewModel.name.value}» $action", Toast.LENGTH_SHORT
+            )
+                .show()
+            findNavController().popBackStack()
+        }
+
+        binding.createPlaylist.setOnClickListener {
+            viewModel.savePlaylist()
+        }
     }
 
     private fun launchPhotoPicker() {
@@ -134,22 +151,13 @@ class CreatePlaylistFragment : Fragment() {
         }
     }
 
-    private fun showToast(text: String) {
-        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun updateCreateButtonState() {
-        val nameNotEmpty = viewModel.name.value?.isNotBlank() == true
-        binding.createPlaylist.isEnabled = nameNotEmpty
-    }
-
     private fun checkBeforeExit() {
-        if (viewModel.hasUnsavedChanges()) {
+        if (playlistId == -1 && viewModel.hasUnsavedChanges()) {
             AlertDialog.Builder(requireContext())
-                .setTitle("Завершить создание плейлиста?")
-                .setMessage("Все несохраненные данные будут потеряны")
-                .setNegativeButton("Отмена", null)
-                .setPositiveButton("Завершить") { _, _ ->
+                .setTitle(R.string.finish_creating)
+                .setMessage(R.string.data_loss)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.complete) { _, _ ->
                     findNavController().popBackStack()
                 }
                 .show()
@@ -158,8 +166,17 @@ class CreatePlaylistFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? MainActivity)?.showBottomNav(false)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         (activity as? MainActivity)?.showBottomNav(true)
+    }
+
+    companion object {
+        private const val PLAYLIST_ID = "playlistId"
     }
 }
